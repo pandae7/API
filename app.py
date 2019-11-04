@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, jsonify
+import sys
+from flask import Flask, request, jsonify, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,11 +17,30 @@ def hello():
     return "Hello World!"
 
 @app.route("/add")
-def add_runs():
-    runid=request.args.get('runid')
-    pod_url=request.args.get('pod_url')
-    pod_port=request.args.get('pod_port')
-    experiment_id=request.args.get('experiment_id')
+def check_runs():
+    runid = input("enter runid: ") #takes Runid from user
+    try:
+        if Pod.query.filter_by(runid=runid).first():
+            pod=Pod.query.filter_by(runid=runid).first()
+            print(pod.pod_url, pod.pod_port, pod.experiment_id)
+            #return jsonify(pod.serialize())  #if we want to get results on the web page
+        else:
+            add_runs(runid)
+            pod=Pod.query.filter_by(runid=runid).first()
+            print(pod.pod_url, pod.pod_port, pod.experiment_id)
+            #return jsonify(pod.serialize()) #results on web page   
+    except Exception as e:
+	    return(str(e))
+
+def add_runs(runid):
+    #runid = input("enter runid: ") #takes Runid from user
+    # pod_url=request.args.get('pod_url')
+    # pod_port=request.args.get('pod_port')
+    # experiment_id=request.args.get('experiment_id')
+
+
+    """ enter code for deployment of POD with the help of helpers file """
+
     try:
         pod=Pod(
             runid=runid,
