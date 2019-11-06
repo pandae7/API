@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 6284e66e802040d496acb155390f5721
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: 6284e66e802040d496acb155390f5721
+  template:
+    app: 6284e66e802040d496acb155390f5721
+    metadata:
+      labels:
+        app: 6284e66e802040d496acb155390f5721
+    spec:
+      containers:
+      - args:
+        - -c
+        - mlflow models serve -m s3://mlflowtrackingserver/0/6284e66e802040d496acb155390f5721/artifacts/model
+          --host 0.0.0.0 --port 5001
+        command:
+        - /bin/sh
+        image: hannibal133/predspod:test
+        imagePullPolicy: Always
+        name: 6284e66e802040d496acb155390f5721
+        ports:
+        - containerPort: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: 6284e66e802040d496acb155390f5721
+  name: pod-6284e66e802040d496acb155390f5721
+spec:
+  ports:
+  - port: 5001
+    targetPort: 5001
+  selector:
+    app: 6284e66e802040d496acb155390f5721
+  type: NodePort
