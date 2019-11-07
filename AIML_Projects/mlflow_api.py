@@ -5,7 +5,12 @@ import glob
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 CORS(app)
+
+from model import Pod
 
 for path in ['deployments', 'states']:
     if not os.path.exists(path):
@@ -13,9 +18,14 @@ for path in ['deployments', 'states']:
 
 
 def check_db(run_id):
-    # flag = True
-    flag = False
-    url = 'awslb.com'
+    flag = True
+    # flag = False
+    '''
+    if Pod.query.filter_by(run_id=run_id).first():
+        pod=Pod.query.filter_by(run_id=run_id).first()
+        print(pod.pod_url, pod.pod_port, pod.experiment_id)
+    '''
+    url = pod.pod_url
     print('API with run id '+run_id+' exists.')
     return flag, url
 

@@ -78,6 +78,10 @@ class UpdateDB(luigi.Task):
 
     def run(self):
 
+        '''
+        
+        '''        
+        
         with self.output().open('w') as file:
             file.write(datetime.now().strftime('DB update task completed on %H %M %d %m %Y\n'))
 
