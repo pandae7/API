@@ -3,6 +3,7 @@ from kubernetes import config, client
 import luigi
 import kubernetes.client
 from datetime import datetime
+import time
 
 config.load_kube_config()
 configuration = kubernetes.client.Configuration()
@@ -42,7 +43,7 @@ class CreateYAML(luigi.Task):
 class Deploy(luigi.Task):
     run_id = luigi.Parameter()
     exp_id = luigi.Parameter()
-
+    # pod_port = luigi.Parameter()
     def requires(self):
         return CreateYAML(self.run_id, self.exp_id)
 
@@ -58,35 +59,39 @@ class Deploy(luigi.Task):
             resp2 = k8s_apps_v2.create_namespaced_service(
                 body=docs[1], namespace='default')
             print("okay6")
-            # return resp
+            api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
+            print(self.run_id)
+            y = api_instance.list_service_for_all_namespaces(label_selector='app='+str(self.run_id) )
+                     
             
-
+            # entry = y.items[0]
+            # self.pod_port = entry.spec.ports[0].node_port
+            # print(pod_port)
+            # return pod_port
         print("Deployment created.")
         with self.output().open('w') as file:
-            file.write(datetime.now().strftime('Deployment task completed on %H %M %d %m %Y\n'))
+            for item in y.items:
+                file.write("%s\n" %item)
+            # file.write(datetime.now().strftime('Deployment task completed on %H %M %d %m %Y\n'))
+        # return self.pod_port
 
     def output(self):
         return luigi.LocalTarget('states/' + str(self.run_id) + '_dep.txt')
 
 
-class UpdateDB(luigi.Task):
-    run_id = luigi.Parameter()
-    exp_id = luigi.Parameter()
+# class UpdateDB(luigi.Task):
+#     run_id = luigi.Parameter()
+#     exp_id = luigi.Parameter()
 
-    def requires(self):
-        return Deploy(self.run_id, self.exp_id)
+#     def requires(self):
+#         return Deploy(self.run_id, self.exp_id)
 
-    def run(self):
+#     def run(self):       
+#         with self.output().open('w') as file:
+#             file.write(datetime.now().strftime('DB update task completed on %H %M %d %m %Y\n'))
 
-        '''
-        
-        '''        
-        
-        with self.output().open('w') as file:
-            file.write(datetime.now().strftime('DB update task completed on %H %M %d %m %Y\n'))
-
-    def output(self):
-        return luigi.LocalTarget('states/' + str(self.run_id) + '_db.txt')
+#     def output(self):
+#         return luigi.LocalTarget('states/' + str(self.run_id) + '_db.txt')
 
 if __name__ == '__main__':
     luigi.run()
