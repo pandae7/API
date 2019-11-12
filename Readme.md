@@ -4,6 +4,7 @@ https://medium.com/@dushan14/create-a-web-application-with-python-flask-postgres
 
 https://marcobonzanini.com/2015/10/24/building-data-pipelines-with-python-and-luigi/
 
+https://python-forum.io/Thread-starting-a-process-every-10-seconds
 
 environment var
 
